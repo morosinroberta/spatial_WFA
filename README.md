@@ -29,7 +29,7 @@ dimensions (ny,nx,nStokes,nw). If we assume that we have loaded such data
 into two arrays named wav and data and that the observed spectral line is
 the Ca II 8542 line:
 
-```
+```python
 import numpy as np
 import wfa_spatial as wa
 
@@ -54,3 +54,4 @@ Blos  = wa.getBlos(wav, data, sig, lin, alpha)
 
 Btr, Bazi = wa.getBhorAzi(wav, data, sig, lin, alpha, vdop=0.070)
 
+```
