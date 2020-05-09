@@ -14,7 +14,9 @@ of the WFA, which improves the usability and fidelity of the WFA.
 ## Compilation of the C++ module
 These routines require building and solving a sparse linear system of
 equations. In order to improve performance we have implemented that
-part in a C++ module. To compile it simply use:
+part in a C++ module. This module makes use of the Eigen 3 library,
+which should be in your path.
+To compile it simply use:
 ```
 python3 setup.py build_ext --inplace
 ```

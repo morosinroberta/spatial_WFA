@@ -29,7 +29,7 @@ sysconfig.get_config_vars()['PY_LDFLAGS'] = ''
 
 
 
-comp_flags=['-Ofast','-std=c++17','-march=native','-fPIC','-fopt-info-vec']#,
+comp_flags=['-O3','-std=c++11','-march=native','-fPIC']#,
 root_dir = '/usr/'
 extension = Extension("spatWFA",
                       sources=["WFA.pyx"], 
