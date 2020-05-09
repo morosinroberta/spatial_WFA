@@ -55,3 +55,9 @@ Blos  = wa.getBlos(wav, data, sig, lin, alpha)
 Btr, Bazi = wa.getBhorAzi(wav, data, sig, lin, alpha, vdop=0.070)
 
 ```
+
+## Citing this method
+These routines were developed as part of a publication by
+R. Morosin, J. de la Cruz Rodriguez & G. Vissers (2020).
+Please if you use them in your project we would appreciate
+it if you cite our publication.
