@@ -1,6 +1,6 @@
 """
 CYTHON interface for C++ WFA tools.
-Author: J. de la Cruz Rodriguez & R. Morosin (ISP-SU, 2020)
+Author: R. Morosin, J. de la Cruz Rodriguez & G. Vissers (ISP-SU, 2020)
 """
 cimport numpy as np
 from numpy cimport ndarray as ar
@@ -8,9 +8,8 @@ from numpy import zeros, abs, sqrt, arctan2, where, pi, float32, float64
 from libcpp cimport bool
 
 
-__author__="J. de la Cruz Rodriguez & R. Morosin (ISP-SU 2020)"
+__author__="R. Morosin, J. de la Cruz Rodriguez & G. Vissers (ISP-SU 2020)"
 __status__="Developing"
-__email__="jaime@astro.su.se"
 
 
 # Expose solver only for float32 and float64 types
