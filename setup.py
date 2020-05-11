@@ -56,7 +56,7 @@ extension.cython_directives = {'language_level': "3"}
 setup(
     name = 'WFA Spat',
     version = '1.0',
-    author = 'Roberta Morosin, Jaime de la Cruz Rodriguez and Gregal Vissers (ISP-SU 2020)',
+    author = 'R. Morosin, J. de la Cruz Rodriguez and G. Vissers (ISP-SU 2020)',
     ext_modules=[extension],
     cmdclass = {'build_ext': build_ext}
 )
