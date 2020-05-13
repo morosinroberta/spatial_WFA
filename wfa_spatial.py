@@ -72,6 +72,10 @@ class line:
             self.j1 = 1.0; self.j2 = 1.0; self.g1 = 2.50; self.g2 = 2.49; self.cw = 8468.4059
         elif(cw == 6173):
             self.j1 = 1.0; self.j2 = 0.0; self.g1 = 2.50; self.g2 = 0.0; self.cw = 6173.3340
+        elif(cw == 5173):
+            self.j1 = 1.0; self.j2 = 1.0; self.g1 = 1.50; self.g2 = 2.0; self.cw = 5172.6843
+        elif(cw == 5896):
+            self.j1 = 0.5; self.j2 = 0.5; self.g1 = 2.00; self.g2 = 2.0/3.0; self.cw = 5895.9242
         else:
             print("line::init: ERROR, line not implemented")
             self.j1 = 0.0; self.j2 = 0.0; self.g1 = 0.0; self.g2 = 0.0; self.cw = 0.0
@@ -121,7 +125,7 @@ def getBlos(w, d, sig, line, alpha, mask = None, Bnorm=100.0, nthreads = 1, w0=0
     rhs = np.zeros((ny, nx), dtype='float64', order='c')
 
     
-    if(mask == None):
+    if(mask is None):
         
         if(w1 == -1): w1 = nw
         if(w0 < 0): w1 = 0
@@ -185,7 +189,7 @@ def getBhorAzi(w, d, sig, lin, alpha = 0.0, vdop = 0.05, mask = None, Bnorm=100.
     rhsU = np.zeros((ny, nx), dtype='float64', order='c')
 
     # prepare LHS and RHS for Stokes Q
-    if(mask == None):
+    if(mask is None):
 
         if(w1 == -1): w1 = nw
         if(w0 < 0): w1 = 0
