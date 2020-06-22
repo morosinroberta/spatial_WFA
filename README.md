@@ -59,6 +59,9 @@ Btr, Bazi = wa.getBhorAzi(wav, data, sig, lin, alpha, vdop=0.070)
 
 ```
 
+We have included an example with a real SST/CRISP Mg I 5173 dataset,
+which can be found in the example subfolder.
+
 ## Citing this method
 These routines were developed as part of a publication by
 R. Morosin, J. de la Cruz Rodriguez & G. Vissers (2020).
