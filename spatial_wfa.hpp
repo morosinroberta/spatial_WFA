@@ -17,7 +17,8 @@
 //
 // Coded by J. de la Cruz Rodriguez (ISP-SU 2020)
 //
-// Reference: Morosin, de la Cruz & Vissers (2020)
+// Reference: Morosin, de la Cruz Rodriguez, Vissers & Yadav (2020)
+//            https://arxiv.org/abs/2006.14487
 //
 
 namespace wfa{

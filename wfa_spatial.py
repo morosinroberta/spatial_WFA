@@ -2,7 +2,8 @@
 Spatially constrained Weak Field Approximation module
 Uses Tikhonov regularization to set spatial constraints on the WFA
 
-Reference: Morosin, de la Cruz Rodriguez & Vissers (2020)
+Reference: Morosin, de la Cruz Rodriguez, Vissers & Yadav (2020)
+           https://arxiv.org/abs/2006.14487
 
 Dependences:
 - SpatWFA is an external cython/C++ module that contains 
@@ -110,7 +111,7 @@ def getBlos(w, d, sig, line, alpha, mask = None, Bnorm=100.0, nthreads = 1, w0=0
             w0: (optional) together with w1 allow selecting a wavelength window so compute the WFA
             w1: (optional) together with w0 allow selecting a wavelength window so compute the WFA 
 
-    Reference: Morosin, de la Cruz Rodriguez & Vissers (2020)
+    Reference: Morosin, de la Cruz Rodriguez, Vissers & Yadav (2020)
     """
     ny, nx, ns, nw = d.shape
 
@@ -166,7 +167,7 @@ def getBhorAzi(w, d, sig, lin, alpha = 0.0, vdop = 0.05, mask = None, Bnorm=100.
             w0: (optional) together with w1 allow selecting a wavelength window so compute the WFA
             w1: (optional) together with w0 allow selecting a wavelength window so compute the WFA 
 
-    Reference: Morosin, de la Cruz Rodriguez & Vissers (2020)
+    Reference: Morosin, de la Cruz Rodriguez, Vissers & Yadav (2020)
     """
     ny, nx, ns, nw = d.shape
 

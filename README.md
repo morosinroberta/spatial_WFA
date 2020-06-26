@@ -64,6 +64,6 @@ which can be found in the example subfolder.
 
 ## Citing this method
 These routines were developed as part of a publication by
-R. Morosin, J. de la Cruz Rodriguez & G. Vissers (2020).
+[R. Morosin et al. (2020)](https://arxiv.org/abs/2006.14487).
 Please if you use them in your project we would appreciate
 it if you cite our publication.
