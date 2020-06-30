@@ -30,7 +30,7 @@ cdef extern from "spatial_wfa.hpp":
 def spatial_constraints_double(int ny, int nx, double alpha, ar[double,ndim=1] lhs, ar[double,ndim=1] rhs, int nthreads=1):
     cdef ar[double,ndim=2] result = zeros((ny,nx), dtype='float64', order='c')
 
-    set_spatial_constraints_double(ny, nx, alpha, <double*>lhs.data, <double*>rhs.data, <double*>result.data, nthreads)
+    set_spatial_constraints_double(<int>ny, <int>nx, <double>alpha, <double*>lhs.data, <double*>rhs.data, <double*>result.data, <int>nthreads)
     
     return result
     
@@ -41,7 +41,7 @@ def spatial_constraints_double(int ny, int nx, double alpha, ar[double,ndim=1] l
 def spatial_constraints_float(int ny, int nx, float alpha, ar[float,ndim=1] lhs, ar[float,ndim=1] rhs, int nthreads=1):
     cdef ar[float,ndim=2] result = zeros((ny,nx), dtype='float32', order='c')
 
-    set_spatial_constraints_float(ny, nx, alpha, <float*>lhs.data, <float*>rhs.data, <float*>result.data, nthreads)
+    set_spatial_constraints_float(<int>ny, <int>nx, <float>alpha, <float*>lhs.data, <float*>rhs.data, <float*>result.data, <int>nthreads)
     
     return result
 
