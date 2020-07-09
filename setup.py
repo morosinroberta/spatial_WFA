@@ -12,6 +12,7 @@ import pathlib
 
 p = pathlib.Path(sys.executable)
 root_dir = str(pathlib.Path(*p.parts[0:-2]))
+comp_flags=['-O3','-std=c++11','-march=native','-fPIC']#,
 
 
 if(plt.system() == 'Darwin'):
@@ -47,13 +48,12 @@ sysconfig.get_config_vars()['PY_LDFLAGS'] = ''
 
 
 
-comp_flags=['-O3','-std=c++11','-march=native','-fPIC']#,
 extension = Extension("spatWFA",
                       sources=["WFA.pyx"], 
                       include_dirs=["./", root_dir+"/include/",numpy.get_include()],
                       language="c++",
                       extra_compile_args=comp_flags,
-                      extra_link_args=link_opts,
+                      extra_link_args=comp_flags+link_opts,
                       library_dirs=[root_dir+'/lib/','./'],
                       libraries=[])
 
