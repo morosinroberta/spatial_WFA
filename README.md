@@ -28,7 +28,7 @@ to the folder where you want to execute these routines.
 
 ### Using Anaconda python
 You can use Anaconda python as a package manager to install all dependencies that are required.
-This is particularly convenient in OSX, where the Eigen3, FFTW-3 and python are not installed by default.
+This is particularly convenient in OSX, where the Eigen3 and python are not installed by default.
 
 To do so, we can create a separate environment to install all packages, in this case the environment is called bla but feel free to replace that with a different name:
 ```
