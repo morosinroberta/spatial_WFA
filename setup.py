@@ -7,9 +7,15 @@ from distutils import sysconfig
 #import numpy.distutils.intelccompiler
 import numpy.distutils.ccompiler
 import platform as plt
+import sys
+import pathlib
+
+p = pathlib.Path(sys.executable)
+root_dir = str(pathlib.Path(*p.parts[0:-2]))
+
 
 if(plt.system() == 'Darwin'):
-    root_dir = '/opt/local/'
+    #root_dir = '/opt/local/'
     CC = 'clang'
     CXX= 'clang++'
     link_opts = ["-stdlib=libc++","-bundle","-undefined","dynamic_lookup"]
