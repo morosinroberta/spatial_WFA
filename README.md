@@ -89,3 +89,6 @@ These routines were developed as part of a publication by
 [R. Morosin et al. (2020)](https://arxiv.org/abs/2006.14487).
 Please if you use them in your project we would appreciate
 it if you cite our publication.
+
+## Acknowledgements
+This project has received funding from the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation programme (SUNMAG, grant agreement 759548).
