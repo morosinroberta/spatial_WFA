@@ -96,7 +96,7 @@ class line:
       
 # *********************************************************************************************** #
      
-def getBlos(w, d, sig, line, alpha, mask = None, Bnorm=100.0, nthreads = 1, w0=0, w1=-1):
+def getBlos(w, d, sig, line, alpha, beta = 0.0, mask = None, Bnorm=100.0, nthreads = 1, w0=0, w1=-1):
     """
     Function getBlos computes Blons with the WFA using spatial constraints
     Usage: Blos = getBlosSpat(w, d, sig, line, alpha, mask = None, Bnorm=100.0, nthreads = 2, w0=0, w1=-1)
@@ -105,6 +105,7 @@ def getBlos(w, d, sig, line, alpha, mask = None, Bnorm=100.0, nthreads = 1, w0=0
              d: 4D data array with the dimensions arranged as (ny,nx,nStokes,nw)
            sig: 2D array with the estimate of the noise for each Stokes parameter (nStokes,nw)
          alpha: regularization weight. If the estimate of the noise is correct, it should be around 1.
+          beta: low-norm regularization weight. Only use if the noise is extremely high.
           mask: (optional) if provided, only the indexes in mask will be used to compute the WFA
          Bnorm: (optional) Typical norm for the magnetic field gradients.
       nthreads: (not implemented yet)
@@ -145,13 +146,13 @@ def getBlos(w, d, sig, line, alpha, mask = None, Bnorm=100.0, nthreads = 1, w0=0
             lhs += cc*der[:,:,ii]**2 / isig2
             rhs += c *der[:,:,ii]*d[:,:,3,ii] / isig2
         
-    Blos = spa.spatial_constraints_double(ny, nx, alpha/(4*Bnorm**2), lhs.flatten(), rhs.flatten(), int(nthreads))
+    Blos = spa.spatial_constraints_double(ny, nx, alpha/(4*Bnorm**2), alpha/(4*Bnorm**2), lhs.flatten(), rhs.flatten(), int(nthreads))
 
     return Blos
 
 # *********************************************************************************************** #
 
-def getBhorAzi(w, d, sig, lin, alpha = 0.0, vdop = 0.05, mask = None, Bnorm=100.0, w0=0, w1=-1, nthreads=2):
+def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=100.0, w0=0, w1=-1, nthreads=2):
     """
     Function getBhorAzi computes Btrans and Bazi with the WFA using spatial constraints
     Usage: Bhor, Bazi = getBhorAziSpat(w, d, sig, lin, alpha = 0.0, vdop = 0.05, mask = None, Bnorm=100.0, w0=0, w1=-1, nthreads=2)
@@ -160,6 +161,7 @@ def getBhorAzi(w, d, sig, lin, alpha = 0.0, vdop = 0.05, mask = None, Bnorm=100.
              d: 4D data array with the dimensions arranged as (ny,nx,nStokes,nw)
            sig: 2D array with the estimate of the noise for each Stokes parameter (nStokes,nw)
          alpha: regularization weight. If the estimate of the noise is correct, it should be around 1.
+          beta: low-norm regularization weight. Only use if the noise is extremely high.
           vdop: Rough estimate of the Doppler with of the line. Wavelengths below this number will be ignored
           mask: (optional) if provided, only the indexes in mask will be used to compute the WFA
          Bnorm: (optional) Typical norm for the magnetic field gradients.
@@ -224,8 +226,8 @@ def getBhorAzi(w, d, sig, lin, alpha = 0.0, vdop = 0.05, mask = None, Bnorm=100.
             rhsU += c*d[:,:,2,ii]*der[:,:,ii] / isig2U
 
     # Construct and solve linear system for each component of Bhor
-    BhorQ_2 = spa.spatial_constraints_double(ny, nx, alpha/(4*Bnorm**4), lhsQ.flatten(), rhsQ.flatten(), int(nthreads))
-    BhorU_2 = spa.spatial_constraints_double(ny, nx, alpha/(4*Bnorm**4), lhsU.flatten(), rhsU.flatten(), int(nthreads))
+    BhorQ_2 = spa.spatial_constraints_double(ny, nx, alpha/(4*Bnorm**4), beta/(4*Bnorm**4), lhsQ.flatten(), rhsQ.flatten(), int(nthreads))
+    BhorU_2 = spa.spatial_constraints_double(ny, nx, alpha/(4*Bnorm**4), beta/(4*Bnorm**4), lhsU.flatten(), rhsU.flatten(), int(nthreads))
 
     # calculate the azimuth
     azimuth = 0.5 * np.arctan2(BhorU_2, BhorQ_2)

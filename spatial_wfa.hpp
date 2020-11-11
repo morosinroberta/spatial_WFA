@@ -78,7 +78,7 @@ namespace wfa{
   
   template<typename T>
   Eigen::SparseMatrix<T,Eigen::RowMajor,int> make_sparse_system(int const ny, int const nx,
-								const T* __restrict__ lhs,  T const alpha)
+								const T* __restrict__ lhs,  T const alpha, T const beta)
   {
     
     using namespace Eigen;
@@ -129,7 +129,7 @@ namespace wfa{
 	if((yy-1)>=0) A.insert(ipix,ipix - nx) = malpha;
 	if((xx-1)>=0) A.insert(ipix,ipix - 1)  = malpha;
 	
-	A.insert(ipix,ipix) = lhs[ipix] + alpha*(nElements_per_row[ipix]-1);
+	A.insert(ipix,ipix) = lhs[ipix] + alpha*(nElements_per_row[ipix]-1) + beta;
 
 	if((xx+1)<nx) A.insert(ipix,ipix + 1)  = malpha;
 	if((yy+1)<ny) A.insert(ipix,ipix + nx) = malpha;
@@ -156,8 +156,8 @@ namespace wfa{
     
     // --- Solve linear system using BIGSTAB/LU decomposition --- //
 
-    //BiCGSTAB<SparseMatrix<T,RowMajor,int>,IncompleteLUT<T>> solver(A);
-    SparseLU<SparseMatrix<T, RowMajor, int>> solver; solver.compute(A);
+    BiCGSTAB<SparseMatrix<T,RowMajor,int>> solver(A);
+    //SparseLU<SparseMatrix<T, RowMajor, int>> solver; solver.compute(A);
 
     X = solver.solve(B);
     
@@ -166,7 +166,7 @@ namespace wfa{
   // ******************************************************************************************* //
 
   template<typename T>
-  void set_spatial_constraints(int const ny, int const nx, T const alpha, const T* __restrict__ lhs,
+  void set_spatial_constraints(int const ny, int const nx, T const alpha, T const beta, const T* __restrict__ lhs,
 			       const T* __restrict__ rhs, T* __restrict__ result, int const nthreads = 1)
   {
 
@@ -177,7 +177,7 @@ namespace wfa{
     
     // --- construct sparse matrix --- //
 
-    Eigen::SparseMatrix<T,Eigen::RowMajor,int> A =  make_sparse_system<T>(ny, nx, lhs, alpha);
+    Eigen::SparseMatrix<T,Eigen::RowMajor,int> A =  make_sparse_system<T>(ny, nx, lhs, alpha, beta);
 
 
     // --- Solve linear system --- //

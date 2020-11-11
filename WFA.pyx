@@ -16,8 +16,8 @@ __status__="Developing"
 # Expose solver only for float32 and float64 types
 
 cdef extern from "spatial_wfa.hpp":
-    cdef void set_spatial_constraints_double "wfa::set_spatial_constraints<double>"(int   ny, int   nx, double  alpha, const double* lhs, const double* rhs, double* result, int nthreads)
-    cdef void set_spatial_constraints_float   "wfa::set_spatial_constraints<float>"(int  ny, int   nx,  float  alpha, const  float* lhs, const  float* rhs,  float* result, int nthreads)
+    cdef void set_spatial_constraints_double "wfa::set_spatial_constraints<double>"(int   ny, int   nx, double  alpha, double beta, const double* lhs, const double* rhs, double* result, int nthreads)
+    cdef void set_spatial_constraints_float   "wfa::set_spatial_constraints<float>"(int  ny, int   nx,  float  alpha, float beta, const  float* lhs, const  float* rhs,  float* result, int nthreads)
 
     cdef void compute_derivatives_float    "wfa::compute_derivatives<float>"(int n,  const float* x,  const float* y,  float* yp)
     cdef void compute_derivatives_double  "wfa::compute_derivatives<double>"(int n, const double* x, const double* y, double* yp)
@@ -27,10 +27,10 @@ cdef extern from "spatial_wfa.hpp":
 #
 # Constructs the sparse matrix and solves the system (with float64 input)
 #
-def spatial_constraints_double(int ny, int nx, double alpha, ar[double,ndim=1] lhs, ar[double,ndim=1] rhs, int nthreads=1):
+def spatial_constraints_double(int ny, int nx, double alpha, double beta, ar[double,ndim=1] lhs, ar[double,ndim=1] rhs, int nthreads=1):
     cdef ar[double,ndim=2] result = zeros((ny,nx), dtype='float64', order='c')
 
-    set_spatial_constraints_double(<int>ny, <int>nx, <double>alpha, <double*>lhs.data, <double*>rhs.data, <double*>result.data, <int>nthreads)
+    set_spatial_constraints_double(<int>ny, <int>nx, <double>alpha, <double>beta, <double*>lhs.data, <double*>rhs.data, <double*>result.data, <int>nthreads)
     
     return result
     
@@ -38,10 +38,10 @@ def spatial_constraints_double(int ny, int nx, double alpha, ar[double,ndim=1] l
 #
 # Constructs the sparse matrix and solves the system (with float64 input)
 #
-def spatial_constraints_float(int ny, int nx, float alpha, ar[float,ndim=1] lhs, ar[float,ndim=1] rhs, int nthreads=1):
+def spatial_constraints_float(int ny, int nx, float alpha, float beta, ar[float,ndim=1] lhs, ar[float,ndim=1] rhs, int nthreads=1):
     cdef ar[float,ndim=2] result = zeros((ny,nx), dtype='float32', order='c')
 
-    set_spatial_constraints_float(<int>ny, <int>nx, <float>alpha, <float*>lhs.data, <float*>rhs.data, <float*>result.data, <int>nthreads)
+    set_spatial_constraints_float(<int>ny, <int>nx, <float>alpha, <float>beta, <float*>lhs.data, <float*>rhs.data, <float*>result.data, <int>nthreads)
     
     return result
 
