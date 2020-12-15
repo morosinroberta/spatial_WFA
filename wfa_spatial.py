@@ -147,7 +147,7 @@ def getBlos(w, d, sig, line, alpha, beta = 0.0, mask = None, Bnorm=100.0, nthrea
             lhs += cc*der[:,:,ii]**2 / isig2
             rhs += c *der[:,:,ii]*d[:,:,3,ii] / isig2
         
-    Blos = spa.spatial_constraints_double(ny, nx, alpha/(4*Bnorm**2), alpha/(4*Bnorm**2), lhs.flatten(), rhs.flatten(), int(nthreads))
+    Blos = spa.spatial_constraints_double(ny, nx, alpha/(4*Bnorm**2), beta/(4*Bnorm**2), lhs.flatten(), rhs.flatten(), int(nthreads))
 
     return Blos
 
