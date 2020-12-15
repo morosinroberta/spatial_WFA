@@ -96,7 +96,7 @@ class line:
       
 # *********************************************************************************************** #
      
-def getBlos(w, d, sig, line, alpha, beta = 0.0, mask = None, Bnorm=100.0, nthreads = 1, w0=0, w1=-1):
+def getBlos(w, d, sig, line, alpha, beta = 0.0, mask = None, Bnorm=100.0, nthreads = 1, w0=0, w1=-1, Steffen = False):
     """
     Function getBlos computes Blons with the WFA using spatial constraints
     Usage: Blos = getBlosSpat(w, d, sig, line, alpha, mask = None, Bnorm=100.0, nthreads = 2, w0=0, w1=-1)
@@ -111,6 +111,7 @@ def getBlos(w, d, sig, line, alpha, beta = 0.0, mask = None, Bnorm=100.0, nthrea
       nthreads: (not implemented yet)
             w0: (optional) together with w1 allow selecting a wavelength window so compute the WFA
             w1: (optional) together with w0 allow selecting a wavelength window so compute the WFA 
+       Steffen: (optional) use Steffen (1990) harmonic centered derivatives, or standard centered ones.
 
     Reference: Morosin, de la Cruz Rodriguez, Vissers & Yadav (2020)
     """
@@ -120,7 +121,7 @@ def getBlos(w, d, sig, line, alpha, beta = 0.0, mask = None, Bnorm=100.0, nthrea
     c = -line.larm * line.cw**2 * line.geff; cc = c*c
 
     # calculate derivatives of the intensity
-    der = cder(w, d)
+    der = cder(w, d, Steffen = Steffen)
 
     # Init tmp storage
     lhs = np.zeros((ny, nx), dtype='float64', order='c')
@@ -130,11 +131,11 @@ def getBlos(w, d, sig, line, alpha, beta = 0.0, mask = None, Bnorm=100.0, nthrea
     if(mask is None):
         
         if(w1 == -1): w1 = nw
-        if(w0 < 0): w1 = 0
-        if(w1 > nw): w1 = nw
+        if(w0 < 0):  w0  = 0
+        if(w1 > nw): w1  = nw
         
         inw = w1-w0
-        for ii in range(nw):
+        for ii in range(w0,w1):
             isig2 = inw*sig[3,ii]**2
             lhs += cc*der[:,:,ii]**2 / isig2
             rhs += c *der[:,:,ii]*d[:,:,3,ii] / isig2
@@ -152,7 +153,7 @@ def getBlos(w, d, sig, line, alpha, beta = 0.0, mask = None, Bnorm=100.0, nthrea
 
 # *********************************************************************************************** #
 
-def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=100.0, w0=0, w1=-1, nthreads=2):
+def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=100.0, w0=0, w1=-1, nthreads=2, Steffen = True):
     """
     Function getBhorAzi computes Btrans and Bazi with the WFA using spatial constraints
     Usage: Bhor, Bazi = getBhorAziSpat(w, d, sig, lin, alpha = 0.0, vdop = 0.05, mask = None, Bnorm=100.0, w0=0, w1=-1, nthreads=2)
@@ -168,6 +169,7 @@ def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=
       nthreads: (not implemented yet)
             w0: (optional) together with w1 allow selecting a wavelength window so compute the WFA
             w1: (optional) together with w0 allow selecting a wavelength window so compute the WFA 
+       Steffen: (optional) use Steffen (1990) harmonic centered derivatives, or standard centered ones.
 
     Reference: Morosin, de la Cruz Rodriguez, Vissers & Yadav (2020)
     """
@@ -177,7 +179,7 @@ def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=
     c = 0.75 * (lin.larm * lin.cw**2)**2 * lin.Gg; cc=c*c
 
     # Calculate derivatives
-    der = cder(w,d)
+    der = cder(w,d, Steffen = Steffen)
 
     # Adjust derivatives
     for ii in range(len(w)):
