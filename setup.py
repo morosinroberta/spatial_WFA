@@ -12,7 +12,7 @@ import pathlib
 
 p = pathlib.Path(sys.executable)
 root_dir = str(pathlib.Path(*p.parts[0:-2]))
-comp_flags=['-O3','-std=c++11','-march=native','-fPIC']#,
+comp_flags=['-O3','-std=c++11','-march=native','-fPIC', '-fopenmp']#,
 
 
 if(plt.system() == 'Darwin'):

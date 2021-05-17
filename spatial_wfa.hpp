@@ -20,6 +20,14 @@
 // Reference: Morosin, de la Cruz Rodriguez, Vissers & Yadav (2020)
 //            https://arxiv.org/abs/2006.14487
 //
+//
+// Modifications:
+//
+//   2021-05-17, JdlCR: modified penalty function. Only take pixels (x-1) and (y-1),
+//                      otherwise we are unnecessarily counting each interval twice.
+//                      This should lead to a simpler linear system, faster to solve.
+//
+
 
 namespace wfa{
 
@@ -106,9 +114,9 @@ namespace wfa{
 	// --- count nearest neighbors --- //
 	
 	nEl += (((xx-1)>=0)? 1 : 0);
-	nEl += (((xx+1)<nx)? 1 : 0);
+	//nEl += (((xx+1)<nx)? 1 : 0);
 	nEl += (((yy-1)>=0)? 1 : 0);
-	nEl += (((yy+1)<ny)? 1 : 0);
+	//nEl += (((yy+1)<ny)? 1 : 0);
 
 	nElements_per_row[yy*nx+xx] = nEl;
       }
@@ -131,8 +139,8 @@ namespace wfa{
 	
 	A.insert(ipix,ipix) = lhs[ipix] + alpha*(nElements_per_row[ipix]-1) + beta;
 
-	if((xx+1)<nx) A.insert(ipix,ipix + 1)  = malpha;
-	if((yy+1)<ny) A.insert(ipix,ipix + nx) = malpha;
+	//if((xx+1)<nx) A.insert(ipix,ipix + 1)  = malpha;
+	//if((yy+1)<ny) A.insert(ipix,ipix + nx) = malpha;
       }
 
     return A;
@@ -174,6 +182,7 @@ namespace wfa{
       Eigen::initParallel();
       Eigen::setNbThreads(nthreads);
     }
+
     
     // --- construct sparse matrix --- //
 
