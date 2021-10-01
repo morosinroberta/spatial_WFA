@@ -27,7 +27,12 @@
 //                      otherwise we are unnecessarily counting each interval twice.
 //                      This should lead to a simpler linear system, faster to solve.
 //
-
+//   2021-10-01, JdlCR: reverted to original formula. Counting only for (x-1) and (y-1)
+//                      can lead to inbalance of the regularization when alpha is very large
+//                      because of pixel (0,0) does not have anything in the diagonal.
+//                      Need to think this one. Maybe a low-norm term alone will do.
+//  
+//
 
 namespace wfa{
 
@@ -114,9 +119,9 @@ namespace wfa{
 	// --- count nearest neighbors --- //
 	
 	nEl += (((xx-1)>=0)? 1 : 0);
-	//nEl += (((xx+1)<nx)? 1 : 0);
+	nEl += (((xx+1)<nx)? 1 : 0);
 	nEl += (((yy-1)>=0)? 1 : 0);
-	//nEl += (((yy+1)<ny)? 1 : 0);
+	nEl += (((yy+1)<ny)? 1 : 0);
 
 	nElements_per_row[yy*nx+xx] = nEl;
       }
@@ -139,8 +144,8 @@ namespace wfa{
 	
 	A.insert(ipix,ipix) = lhs[ipix] + alpha*(nElements_per_row[ipix]-1) + beta;
 
-	//if((xx+1)<nx) A.insert(ipix,ipix + 1)  = malpha;
-	//if((yy+1)<ny) A.insert(ipix,ipix + nx) = malpha;
+	if((xx+1)<nx) A.insert(ipix,ipix + 1)  = malpha;
+	if((yy+1)<ny) A.insert(ipix,ipix + nx) = malpha;
       }
 
     return A;
