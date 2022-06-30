@@ -46,7 +46,11 @@ def cder(x, y, Steffen = True):
         yp[:,:,-1] = ody    
         return yp
     else:
-        return spa.calculate_derivatives(x,y)
+        isContiguous = y.flags['C_CONTIGUOUS']
+        if(not isContiguous):
+            return spa.calculate_derivatives(x,np.ascontiguousarray(y))
+        else:
+            return spa.calculate_derivatives(x,y)
 
 
 # *********************************************************************************************** #
@@ -153,7 +157,7 @@ def getBlos(w, d, sig, line, alpha, beta = 0.0, mask = None, Bnorm=100.0, nthrea
 
 # *********************************************************************************************** #
 
-def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=100.0, w0=0, w1=-1, nthreads=2, Steffen = True):
+def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=100.0, w0=0, w1=-1, nthreads=2, Steffen = True, Vlos = None):
     """
     Function getBhorAzi computes Btrans and Bazi with the WFA using spatial constraints
     Usage: Bhor, Bazi = getBhorAziSpat(w, d, sig, lin, alpha = 0.0, vdop = 0.05, mask = None, Bnorm=100.0, w0=0, w1=-1, nthreads=2)
@@ -170,6 +174,7 @@ def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=
             w0: (optional) together with w1 allow selecting a wavelength window so compute the WFA
             w1: (optional) together with w0 allow selecting a wavelength window so compute the WFA 
        Steffen: (optional) use Steffen (1990) harmonic centered derivatives, or standard centered ones.
+          Vlos: (optional) if vlos is known, we can use that info 2D array in spectroscopic notation in km/s (downflows are positive).
 
     Reference: Morosin, de la Cruz Rodriguez, Vissers & Yadav (2020)
     """
@@ -180,12 +185,23 @@ def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=
 
     # Calculate derivatives
     der = cder(w,d, Steffen = Steffen)
+    
+    # Adjust derivatives with 1/(lambda-lambda_0) factor
 
-    # Adjust derivatives
-    for ii in range(len(w)):
-        if(np.abs(w[ii]) >= vdop): scl = 1./w[ii]
-        else: scl = 0.0
-        der[:,:,ii] *= scl
+    if(Vlos is None):
+        Vlos = np.zeros((ny,nx), dtype='float32')
+
+    for yy in range(ny):
+        for xx in range(nx):
+            iVlos = Vlos[yy,xx] * lin.cw / 300000.
+            
+            for ii in range(len(w)):
+                iw = w[ii] - iVlos
+                
+                if(np.abs(iw) >= vdop): scl = 1./iw  
+                else: scl = 0.0
+
+                der[yy,xx,ii] *= scl
 
     # Init tmp storage and results
     lhsQ = np.zeros((ny, nx), dtype='float64', order='c')
