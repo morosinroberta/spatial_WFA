@@ -46,12 +46,14 @@ def cder(x, y, Steffen = True):
         yp[:,:,-1] = ody    
         return yp
     else:
-        isContiguous = y.flags['C_CONTIGUOUS']
-        if(not isContiguous):
-            return spa.calculate_derivatives(x,np.ascontiguousarray(y))
-        else:
-            return spa.calculate_derivatives(x,y)
+        #isContiguous = y.flags['C_CONTIGUOUS']
+        #if(not isContiguous):
+        #    return spa.calculate_derivatives(x,np.ascontiguousarray(y))
+        #else:
+        #    return spa.calculate_derivatives(x,y)
 
+        return spa.calculate_derivatives(x, np.ascontiguousarray(y[:,:,0,:]))
+        
 
 # *********************************************************************************************** #
 
@@ -185,24 +187,32 @@ def getBhorAzi(w, d, sig, lin, alpha, beta=0.0, vdop = 0.05, mask = None, Bnorm=
 
     # Calculate derivatives
     der = cder(w,d, Steffen = Steffen)
+
     
     # Adjust derivatives with 1/(lambda-lambda_0) factor
 
-    if(Vlos is None):
-        Vlos = np.zeros((ny,nx), dtype='float32')
-
-    for yy in range(ny):
-        for xx in range(nx):
-            iVlos = Vlos[yy,xx] * lin.cw / 300000.
+    if(Vlos is not None):
+        for yy in range(ny):
+            for xx in range(nx):
+                iVlos = Vlos[yy,xx] * lin.cw / 300000.
             
-            for ii in range(len(w)):
-                iw = w[ii] - iVlos
-                
-                if(np.abs(iw) >= vdop): scl = 1./iw  
-                else: scl = 0.0
+                for ii in range(len(w)):
+                    iw = w[ii] - iVlos
+                    
+                    if(np.abs(iw) >= vdop): scl = 1./iw  
+                    else: scl = 0.0
+                    
+                    der[yy,xx,ii] *= scl
+    else:
+        for ii in range(len(w)):
+            iw = w[ii]*1
+                                       
+            if(np.abs(iw) >= vdop): scl = 1./iw  
+            else: scl = 0.0
 
-                der[yy,xx,ii] *= scl
+            der[:,:,ii] *= scl
 
+            
     # Init tmp storage and results
     lhsQ = np.zeros((ny, nx), dtype='float64', order='c')
     rhsQ = np.zeros((ny, nx), dtype='float64', order='c')
