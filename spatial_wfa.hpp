@@ -34,6 +34,9 @@
 //                      because of pixel (0,0) does not have anything in the diagonal.
 //                      Need to think this one. Maybe a low-norm term alone will do.
 //  
+//   2023-04-24, JdlCR: added a few pragma hints for parallel calculations with OPENMP.
+//                      Also added a function that calculates the derivatives for a n entire cube
+//                      with dimensions (npix, ndata) in parallel.
 //
 
 namespace wfa{
