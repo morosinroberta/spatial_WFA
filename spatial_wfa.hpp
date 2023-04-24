@@ -74,8 +74,8 @@ namespace wfa{
   
   // ******************************************************************************************* //
 
-  template<typename T>
-  void compute_derivatives(int const n, const T* const __restrict__ x, const T* const __restrict__ y, T* __restrict__ yp)
+  template<typename T> inline
+  void compute_derivatives(int const n, const T* const __restrict__ x, const T* const __restrict__ y, T* const __restrict__ yp)
   {
 
     yp[0]   = (y[1]-y[0])     / (x[1]-x[0]); 
