@@ -9,6 +9,8 @@
 
 #include <chrono>
 #include <iostream>
+#include <omp.h>
+#include <iostream>
 
 //
 // C++ routines to solve the spatially coupled WFA problem
@@ -35,7 +37,7 @@
 //
 
 namespace wfa{
-
+  
   // ********************************************************************************* //
 
   template<class T> inline T signFortran(T const &val)
@@ -73,7 +75,7 @@ namespace wfa{
   // ******************************************************************************************* //
 
   template<typename T>
-  void compute_derivatives(int const n, const T* __restrict__ x, const T* __restrict__ y, T* __restrict__ yp)
+  void compute_derivatives(int const n, const T* const __restrict__ x, const T* const __restrict__ y, T* __restrict__ yp)
   {
 
     yp[0]   = (y[1]-y[0])     / (x[1]-x[0]); 
@@ -84,14 +86,29 @@ namespace wfa{
     for(int ii=0; ii<n1; ++ii)
       yp[ii] = harmonic_derivative_Steffen_one(x[ii-1], x[ii], x[ii+1], y[ii-1], y[ii], y[ii+1]);
     
-    
   }
   
   // ******************************************************************************************* //
+
+  template<typename T>
+  void compute_derivatives_many(long const npix, int const n,  const T* const __restrict__ x,
+				const T* const __restrict__ y, T* __restrict__ yp, int const nthreads)
+  {
+
+#pragma omp parallel default(shared) num_threads(nthreads)  
+    {
+#pragma omp for schedule(static)
+      for(long ipix=0; ipix<npix; ++ipix)
+	compute_derivatives(n, x, &y[ipix*n], &yp[ipix*n]);
+    } // parallel block
+  }
   
+  // ******************************************************************************************* //
+
   template<typename T>
   Eigen::SparseMatrix<T,Eigen::RowMajor,int> make_sparse_system(int const ny, int const nx,
-								const T* __restrict__ lhs,  T const alpha, T const beta)
+								const T* __restrict__ lhs,  T const alpha,
+								T const beta, int nthreads)
   {
     
     using namespace Eigen;
@@ -110,31 +127,35 @@ namespace wfa{
     VectorXi nElements_per_row(npix); // 1D vector of integers
     nElements_per_row.setZero();
 
-    
+#pragma omp parallel default(shared) num_threads(nthreads)  
+    {
+#pragma omp for schedule(static) collapse(2)
     for(int yy=0; yy<ny; ++yy)
       for(int xx=0; xx<nx; ++xx){
 	
 	int nEl = 1; // diagonal element
-
+	
 	// --- count nearest neighbors --- //
 	
 	nEl += (((xx-1)>=0)? 1 : 0);
 	nEl += (((xx+1)<nx)? 1 : 0);
 	nEl += (((yy-1)>=0)? 1 : 0);
 	nEl += (((yy+1)<ny)? 1 : 0);
-
+	
 	nElements_per_row[yy*nx+xx] = nEl;
       }
-
     
+    }
+      
     // --- Now set the matrix non-Zero elements of each row --- //
     
     A.reserve(nElements_per_row);
 
-    
-    
-    // --- fill the non-zero elements of the matrix --- //
 
+#pragma omp parallel default(shared) num_threads(nthreads)  
+    {
+    // --- fill the non-zero elements of the matrix --- //
+#pragma omp for schedule(static) collapse(2)
     for(int yy=0; yy<ny; ++yy)
       for(int xx=0; xx<nx; ++xx){
 	int const ipix = yy*nx + xx;
@@ -147,6 +168,7 @@ namespace wfa{
 	if((xx+1)<nx) A.insert(ipix,ipix + 1)  = malpha;
 	if((yy+1)<ny) A.insert(ipix,ipix + nx) = malpha;
       }
+    }
 
     return A;
   } 
@@ -174,6 +196,7 @@ namespace wfa{
 
     X = solver.solve(B);
     
+	
   }
 
   // ******************************************************************************************* //
@@ -191,7 +214,7 @@ namespace wfa{
     
     // --- construct sparse matrix --- //
 
-    Eigen::SparseMatrix<T,Eigen::RowMajor,int> A =  make_sparse_system<T>(ny, nx, lhs, alpha, beta);
+    Eigen::SparseMatrix<T,Eigen::RowMajor,int> A =  make_sparse_system<T>(ny, nx, lhs, alpha, beta, nthreads);
 
 
     // --- Solve linear system --- //
