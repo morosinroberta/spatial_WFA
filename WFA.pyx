@@ -21,8 +21,10 @@ cdef extern from "spatial_wfa.hpp":
 
     cdef void compute_derivatives_float    "wfa::compute_derivatives<float>"(int n,  const float* x,  const float* y,  float* yp)
     cdef void compute_derivatives_double  "wfa::compute_derivatives<double>"(int n, const double* x, const double* y, double* yp)
-
-
+    cdef void compute_derivatives_many_float "wfa::compute_derivatives_many<float>"(long npix, int n,  const float* x,
+				                                                    const float* y, float*  yp, int nthreads)
+    cdef void compute_derivatives_many_double "wfa::compute_derivatives_many<double>"(long npix, int n,  const double* x,
+				                                                      const double* y, double*  yp, int nthreads)
 
 #
 # Constructs the sparse matrix and solves the system (with float64 input)
@@ -47,42 +49,32 @@ def spatial_constraints_float(int ny, int nx, float alpha, float beta, ar[float,
 
 
 
-cdef calculate_derivatives_float(ar[float,ndim=1] w, ar[float,ndim=4] d):
+cdef calculate_derivatives_float(ar[float,ndim=1] w, ar[float,ndim=3] d, int nthreads=4):
     cdef int ny = d.shape[0]
     cdef int nx = d.shape[1]
-    cdef int ns = d.shape[2]
-    cdef int nw = d.shape[3]
-
-    cdef int yy = 0
-    cdef int xx = 0
+    cdef int nw = d.shape[2]
 
     cdef ar[float,ndim=3] dp = zeros((ny, nx, nw), dtype='float32')
 
-    for yy in range(ny):
-        for xx in range(nx):
-            compute_derivatives_float(nw, <float*>w.data, <float*>&d[yy,xx,0,0], <float*>&dp[yy,xx,0])
-
-
+    cdef long npix = nx*ny
+    compute_derivatives_many_float(npix, nw, <float*>w.data, <float*>d.data, <float*>dp.data, nthreads)
+    
     return dp
 
 
 
-cdef calculate_derivatives_double(ar[double,ndim=1] w, ar[double,ndim=4] d):
+cdef calculate_derivatives_double(ar[double,ndim=1] w, ar[double,ndim=3] d, int nthreads = 4):
+
     cdef int ny = d.shape[0]
     cdef int nx = d.shape[1]
-    cdef int ns = d.shape[2]
-    cdef int nw = d.shape[3]
+    cdef int nw = d.shape[2]
 
-    cdef int yy = 0
-    cdef int xx = 0
 
     cdef ar[double,ndim=3] dp = zeros((ny, nx, nw), dtype='float64')
 
-    for yy in range(ny):
-        for xx in range(nx):
-            compute_derivatives_double(nw, <double*>w.data, <double*>&d[yy,xx,0,0], <double*>&dp[yy,xx,0])
-
-
+    cdef long npix = nx*ny
+    compute_derivatives_many_double(npix, nw, <double*>w.data, <double*>d.data, <double*>dp.data, nthreads)
+    
     return dp
 
 
@@ -91,7 +83,7 @@ cdef calculate_derivatives_double(ar[double,ndim=1] w, ar[double,ndim=4] d):
 #
 # Fast derivatives
 # 
-def calculate_derivatives(ar w_in, ar d):
+def calculate_derivatives(ar w_in, ar d, int nthreads=1):
     """
     Calculates the derivatives of Stokes I using the high order derivatives proposed by
     Steffen (1990). 
@@ -108,22 +100,18 @@ def calculate_derivatives(ar w_in, ar d):
     cdef ar[float,ndim=1] wf
     cdef ar[double,ndim=1] wd
 
-    cdef int ny = d.shape[0]
-    cdef int nx = d.shape[1]
-    cdef int ns = d.shape[2]
-    cdef int nw = d.shape[3]
+    cdef int nw = d.shape[2]
 
     
     if(d.dtype == 'float32'):
         wf = zeros(nw, dtype='float32')
         wf[:] = w_in[:]
 
-        return calculate_derivatives_float(wf, d)
+        return calculate_derivatives_float(wf, d, nthreads)
 
         
     else:
         wd = zeros(nw, dtype='float64')
         wd[:] = w_in[:]
-
         
-        return calculate_derivatives_double(wd, d)
+        return calculate_derivatives_double(wd, d, nthreads)
