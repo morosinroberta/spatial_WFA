@@ -1,19 +1,20 @@
-from distutils.core import setup
-from distutils.extension import Extension
+#from distutils.core import setup
+from setuptools import setup
+from setuptools.extension import Extension
+#from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import os
 import numpy
-from distutils import sysconfig
-#import numpy.distutils.intelccompiler
-import numpy.distutils.ccompiler
 import platform as plt
 import sys
 import pathlib
 
 p = pathlib.Path(sys.executable)
 root_dir = str(pathlib.Path(*p.parts[0:-2]))
-comp_flags=['-O3','-std=c++11','-march=native','-fPIC', '-fopenmp']#,
 
+comp_flags=['-Ofast', '-flto','-g0','-fstrict-aliasing','-march=native','-mtune=native',\
+            '-std=c++14','-fPIC','-fopenmp', '-I./src', "-DNPY_NO_DEPRECATED_API", '-DNDEBUG', \
+            '-pedantic', '-Wall']
 
 if(plt.system() == 'Darwin'):
     #root_dir = '/opt/local/'
