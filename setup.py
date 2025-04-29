@@ -26,7 +26,7 @@ else:
 
 
 
-comp_flags=['-O3', '-flto','-g0','-ffast-math','-fstrict-aliasing',\
+comp_flags=['-O3', '-flto','-g0','-fstrict-aliasing',\
             '-std=c++14','-fPIC','-fopenmp', '-I./src', "-DNPY_NO_DEPRECATED_API", '-DNDEBUG', \
             '-pedantic', '-Wall']
 
