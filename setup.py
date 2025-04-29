@@ -1,7 +1,5 @@
-#from distutils.core import setup
 from setuptools import setup
 from setuptools.extension import Extension
-#from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import os
 import numpy
@@ -12,46 +10,35 @@ import pathlib
 p = pathlib.Path(sys.executable)
 root_dir = str(pathlib.Path(*p.parts[0:-2]))
 
-comp_flags=['-Ofast', '-flto','-g0','-fstrict-aliasing','-march=native','-mtune=native',\
-            '-std=c++14','-fPIC','-fopenmp', '-I./src', "-DNPY_NO_DEPRECATED_API", '-DNDEBUG', \
-            '-pedantic', '-Wall']
 
 if(plt.system() == 'Darwin'):
-    #root_dir = '/opt/local/'
+    root_dir = "/opt/local/" # change to the root folder where eigen3 is installed.
     CC = 'clang'
     CXX= 'clang++'
     link_opts = ["-stdlib=libc++","-bundle","-undefined","dynamic_lookup"]
+    comp_flags = ["-mcpu=native","-mtune=native"]
 else:
     root_dir = '/usr/'
     CC = 'gcc'
     CXX= 'g++'
     link_opts = ["-shared"]
+    comp_flags = ["-march=native"]
 
+
+
+comp_flags=['-O3', '-flto','-g0','-ffast-math','-fstrict-aliasing',\
+            '-std=c++14','-fPIC','-fopenmp', '-I./src', "-DNPY_NO_DEPRECATED_API", '-DNDEBUG', \
+            '-pedantic', '-Wall']
+
+    
 os.environ["CC"] = CC
 os.environ["CXX"] = CXX
-
-from distutils import sysconfig
-sysconfig.get_config_vars()['CFLAGS'] = ''
-sysconfig.get_config_vars()['OPT'] = ''
-sysconfig.get_config_vars()['PY_CFLAGS'] = ''
-sysconfig.get_config_vars()['PY_CORE_CFLAGS'] = ''
-sysconfig.get_config_vars()['CC'] =  CC
-sysconfig.get_config_vars()['CXX'] = CXX
-sysconfig.get_config_vars()['BASECFLAGS'] = ''
-sysconfig.get_config_vars()['CCSHARED'] = ''
-sysconfig.get_config_vars()['LDSHARED'] = CC
-sysconfig.get_config_vars()['CPP'] = CXX
-sysconfig.get_config_vars()['CPPFLAGS'] = ''
-sysconfig.get_config_vars()['BLDSHARED'] = ''
-sysconfig.get_config_vars()['CONFIGURE_LDFLAGS'] = ''
-sysconfig.get_config_vars()['LDFLAGS'] = ''
-sysconfig.get_config_vars()['PY_LDFLAGS'] = ''
 
 
 
 extension = Extension("spatWFA",
                       sources=["WFA.pyx"], 
-                      include_dirs=["./", root_dir+"/include/",numpy.get_include()],
+                      include_dirs=["./", root_dir+"/include/", numpy.get_include()],
                       language="c++",
                       extra_compile_args=comp_flags,
                       extra_link_args=comp_flags+link_opts,
